@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matters-Sentinel | Security Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-color: #c9d1d9;
+            --accent-red: #da3633;
+            --accent-green: #238636;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+        }
+
+        h2 { border-bottom: 2px solid var(--card-bg); padding-bottom: 10px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #30363d;
+        }
+
+        th { background: #21262d; color: #58a6ff; }
+
+        .severity-CRITICAL { color: #ff7b72; font-weight: bold; }
+
+        .btn-resolve {
+            background-color: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-resolve:hover { background-color: #2ea043; }
+
+        .status-tag {
+            font-size: 0.8em;
+            background: #21262d;
+            padding: 4px 8px;
+            border-radius: 12px;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+
+<h2>🛡️ Sentinel: Security Incidents <span id="status" class="status-tag">Live Feed: Active</span></h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Threat Type</th>
+        <th>Severity</th>
+        <th>Timestamp</th>
+        <th>Raw Data</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody id="incident-table">
+    </tbody>
+</table>
+
+<script>
+    async function loadIncidents() {
+        try {
+            const response = await fetch('/api/v1/sentinel/dashboard');
+            const data = await response.json();
+            const tbody = document.getElementById('incident-table');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = tbody.insertRow();
+                row.insertCell(0).innerText = item.id;
+                row.insertCell(1).innerText = item.threatType;
+
+                const sevCell = row.insertCell(2);
+                sevCell.innerText = item.severity;
+                sevCell.className = 'severity-' + item.severity;
+
+                row.insertCell(3).innerText = new Date(item.detectedAt).toLocaleString();
+                row.insertCell(4).innerText = item.rawLogData;
+
+                // Action Cell with Resolve Button
+                const actionCell = row.insertCell(5);
+                const btn = document.createElement('button');
+                btn.innerText = 'Resolve';
+                btn.className = 'btn-resolve';
+                btn.onclick = () => resolveIncident(item.id);
+                actionCell.appendChild(btn);
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    async function resolveIncident(id) {
+        if (confirm(`Mark incident #${id} as resolved?`)) {
+            await fetch(`/api/v1/sentinel/dashboard/${id}`, { method: 'DELETE' });
+            loadIncidents(); // Refresh immediately after delete
+        }
+    }
+
+    // Initial load
+    loadIncidents();
+
+    // AUTO-REFRESH: Every 5 seconds
+    setInterval(loadIncidents, 5000);
+</script>
+</body>
+</html>
