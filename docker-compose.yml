@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # Service 1: The Database
+  sentinel-db:
+    image: postgres:16-alpine
+    container_name: vigilant-db
+    environment:
+      POSTGRES_DB: sentinel
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+
+  # Service 2: The Sentinel Engine
+  sentinel-app:
+    build: .
+    container_name: sentinel-engine
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sentinel-db
+    environment:
+      # We use the service name 'sentinel-db' instead of 'localhost'
+      SPRING_DATASOURCE_URL: jdbc:postgresql://sentinel-db:5432/sentinel
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update

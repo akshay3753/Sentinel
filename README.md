@@ -18,20 +18,22 @@
 
 ## 🛠️ Tech Stack
 - **Backend:** Java 21, Spring Boot 3.4.2, Spring Data JPA
-- **Database:** PostgreSQL
-- **Security:** Spring Security (Role-based access)
-- **Frontend:** Vanilla JavaScript (Fetch API), CSS3, HTML5
+- **Database:** PostgreSQL (Containerized)
+- **Security:** Spring Security (RBAC)
+- **Infrastructure:** Docker, Docker Compose
+- **Frontend:** Vanilla JavaScript, CSS3, HTML5
 
 ---
 
-## 💻 Getting Started
+## 💻 Getting Started (Dockerized)
+
+The easiest way to run the entire stack (Engine + Database) is using Docker.
 
 ### Prerequisites
-- JDK 21
-- PostgreSQL 16+
-- Maven
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
 
 ### Installation & Run
 1. **Clone the repository:**
    ```bash
    git clone [https://github.com/akshay3753/Sentinel.git](https://github.com/akshay3753/Sentinel.git)
+   cd Sentinel
